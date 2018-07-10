@@ -74,7 +74,7 @@ var getRandomUnic = function (length, min, max) {
     var randomNumber = getRandomInRange(min, max);
     var found = false;
     for (var i = 0; i < numReserve.length; i++) {
-      if (numReserve[i] === randomNumber){
+      if (numReserve[i] === randomNumber) {
         found = true;
         break;
       }
@@ -158,35 +158,33 @@ var enableFeaturesInAd = function (features) {
         index = j;
       }
     }
-    if (found = true) {
-        popupFeature[index].style = '';
-      }
+    if (found) {
+      popupFeature[index].style = '';
+    }
   }
 };
 
 var getAdPhotos = function (photos) {
-  var photosUrl = photos;
+  var photosUrls = photos;
   var photosInAd = [];
   popupPhotos.removeChild(popupPhoto);
 
-  for (i = 0; i < photosUrl.length; i++) {
+  for (i = 0; i < photosUrls.length; i++) {
     var photoInAd = popupPhoto.cloneNode(true);
 
-    photoInAd.src = photosUrl[i];
+    photoInAd.src = photosUrls[i];
     photosInAd[i] = photoInAd;
 
     popupPhotos.appendChild(photosInAd[i]);
   }
   return photosInAd;
-}
+};
 
 var getPinLocation = function (x, y) {
-  var locationX = x;
-  var locationY = y;
   return 'left: ' + (x - PIN_WIDTH / 2).toString(10) + 'px; top: ' + (y - PIN_HEIGHT).toString(10) + 'px;';
-}
+};
 
-//Генерируем объявления
+// Генерируем объявления
 
 var generateAd = function (i) {
   var ad = {};
@@ -217,11 +215,11 @@ var getAds = function (quantity) {
     ads[i] = generateAd(i);
   }
   return ads;
-}
+};
 
 var adsAll = getAds(ADS_QUANTITY);
 
-//Работа с DOM-элементами
+// Работа с DOM-элементами
 
 var map = document.querySelector('.map');
 map.classList.remove('map--faded');
@@ -230,7 +228,7 @@ var mapElement = document.querySelector('.map__pins');
 var mapAdTemplate = document.querySelector('#map-ad-template').content.querySelector('.map__card');
 var mapPinElement = document.querySelector('button.map__pin');
 
-//Создаем метки на карте
+// Создаем метки на карте
 
 for (var i = 0; i < ADS_QUANTITY; i++) {
   var pinElement = mapPinElement.cloneNode(true);
@@ -245,9 +243,9 @@ for (var i = 0; i < ADS_QUANTITY; i++) {
 mapElement.removeChild(mapPinElement);
 
 
-//Создаем объявление
+// Создаем объявление
 
-for (var i = 0; i < 1; i++) {
+for (i = 0; i < 1; i++) {
   var adElement = mapAdTemplate.cloneNode(true);
 
   adElement.querySelector('.popup__avatar').src = adsAll[i].author.avatar;
@@ -259,7 +257,7 @@ for (var i = 0; i < 1; i++) {
   adElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + adsAll[i].offer.checkin + ', выезд до ' + adsAll[i].offer.checkout;
   adElement.querySelector('.popup__description').textContent = adsAll[i].offer.description;
 
-  var popupFeatures = adElement.querySelector('.popup__features');
+  // var popupFeatures = adElement.querySelector('.popup__features');
   var popupFeature = adElement.querySelector('.popup__features').children;
   enableFeaturesInAd(adsAll[i].offer.features);
 
@@ -268,4 +266,4 @@ for (var i = 0; i < 1; i++) {
   getAdPhotos(adsAll[i].offer.photos);
 
   mapElement.appendChild(adElement);
-};
+}
