@@ -200,7 +200,6 @@ var getPinLocation = function (x, y) {
 // Генерируем объявления
 
 var generateAd = function (i) {
-  getDiapasons();
   var ad = {};
   ad.author = {};
   ad.author.avatar = 'img/avatars/user0' + avatarDiapason[i].toString(10) + '.png';
@@ -232,8 +231,7 @@ var getAds = function (quantity) {
 };
 
 var getAdsAll = function () {
-  adsAll = getAds(ADS_QUANTITY);
-  return adsAll;
+  return getAds(ADS_QUANTITY);
 };
 
 // Работа с DOM-элементами
@@ -290,7 +288,8 @@ var showAdDetails = function (ad) {
 };
 
 var init = function () {
-  getAdsAll();
+  getDiapasons();
+  adsAll = getAdsAll();
   openMap();
   createNodes();
   renderPins();
