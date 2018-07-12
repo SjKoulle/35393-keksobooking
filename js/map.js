@@ -16,7 +16,9 @@ var MIN_LOCATION_Y = 130;
 var MAX_LOCATION_Y = 630;
 var ADS_QUANTITY = 8;
 var PIN_WIDTH = 40;
+var PIN_IMG_HEIGHT = 44;
 var PIN_HEIGHT = 66;
+var ENTER_KEYCODE = 13;
 
 var TITLES = [
   'Большая уютная квартира',
@@ -63,16 +65,26 @@ var PHOTOS_URL = [
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
 
+var ads = [];
 var avatarDiapason = [];
 var titlesDiapason = [];
 var adsAll = [];
 var mapNode;
 var mapElementNode;
+var mapMainPinNode;
+var noticeBlockNode;
+var adFormNode;
+var adFormHeaderNode;
+var adFormElementNode;
+var adFormAdressNode;
 var mapAdTemplateNode;
 var mapPinElementNode;
+var closePopupNode;
 var popupFeature;
 var popupPhotos;
 var popupPhoto;
+var adElement;
+
 
 var getRandomInRange = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -96,6 +108,15 @@ var getRandomUnic = function (length, min, max) {
   }
 
   return numReserve;
+};
+
+var getCoords = function (elem) {
+  var box = elem.getBoundingClientRect();
+
+  return {
+    top: box.top + pageYOffset,
+    left: box.left + pageXOffset
+  };
 };
 
 var getDiapasons = function () {
@@ -197,7 +218,20 @@ var getPinLocation = function (x, y) {
   return 'left: ' + (x - PIN_WIDTH / 2).toString(10) + 'px; top: ' + (y - PIN_HEIGHT).toString(10) + 'px;';
 };
 
-// Генерируем объявления
+var getNoticeAdress = function () {
+  var mainPinCoordinates = getCoords(mapMainPinNode);
+  var mainPinX = mainPinCoordinates.left;
+  var mainPinY = mainPinCoordinates.top;
+  var noticeAdress = (mainPinX + PIN_WIDTH / 2) + ', ' + (mainPinY + PIN_IMG_HEIGHT / 2);
+  return noticeAdress;
+};
+
+var generateNoticeAdress = function () {
+  adFormAdressNode = document.querySelector('input[name="address"]');
+  adFormAdressNode.value = getNoticeAdress();
+};
+
+// Генерируем объекты-объявления
 
 var generateAd = function (i) {
   var ad = {};
@@ -223,7 +257,6 @@ var generateAd = function (i) {
 };
 
 var getAds = function (quantity) {
-  var ads = [];
   for (var i = 0; i < quantity; i++) {
     ads[i] = generateAd(i);
   }
@@ -239,6 +272,20 @@ var getAdsAll = function () {
 var openMap = function () {
   mapNode = document.querySelector('.map');
   mapNode.classList.remove('map--faded');
+};
+
+var openNotice = function () {
+  noticeBlockNode = document.querySelector('.notice');
+  adFormNode = noticeBlockNode.querySelector('.ad-form');
+  adFormHeaderNode = adFormNode.querySelector('.ad-form-header');
+  adFormElementNode = adFormNode.querySelectorAll('.ad-form__element');
+
+  adFormNode.classList.remove('ad-form--disabled');
+  adFormHeaderNode.disabled = false;
+
+  for (var i = 0; i < adFormElementNode.length; i++) {
+    adFormElementNode[i].disabled = false;
+  }
 };
 
 var createNodes = function () {
@@ -259,14 +306,12 @@ var renderPins = function () {
 
     mapElementNode.appendChild(pinElement);
   }
-
-  mapElementNode.removeChild(mapPinElementNode);
 };
 
 // Создаем объявление
 
 var showAdDetails = function (ad) {
-  var adElement = mapAdTemplateNode.cloneNode(true);
+  adElement = mapAdTemplateNode.cloneNode(true);
 
   adElement.querySelector('.popup__avatar').src = ad.author.avatar;
   adElement.querySelector('.popup__title').textContent = ad.offer.title;
@@ -287,13 +332,84 @@ var showAdDetails = function (ad) {
   mapElementNode.appendChild(adElement);
 };
 
+// Работаем с событиями
+
+var activatePage = function () {
+  openMap();
+  openNotice();
+  generateNoticeAdress();
+  createNodes();
+  renderPins();
+  onPinClick();
+};
+
+var onFirstPinClick = function () {
+  mapMainPinNode = document.querySelector('.map__pin--main');
+
+  mapMainPinNode.addEventListener('mouseup', function () {
+    activatePage();
+  })
+
+  mapMainPinNode.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      activatePage();
+    }
+  })
+};
+
+var getPinIndex = function (evt) {
+  var clickTarget = evt.target;
+  var index;
+  for (var i = 0; i < adsAll.length; i++) {
+    if (adsAll[i].offer.title === clickTarget.alt) {
+      index = i;
+      break;
+    }
+  }
+  return index;
+};
+
+var getPinIndexForKeys = function (evt) {
+  var clickTarget = evt.target;
+  var index;
+  for (var i = 0; i < adsAll.length; i++) {
+    if (adsAll[i].offer.title === clickTarget.children[0].alt) {
+      index = i;
+      break;
+    }
+  }
+  return index;
+};
+
+var closePopup = function () {
+  closePopupNode = mapAdTemplateNode.querySelector('.popup__close');
+  mapElementNode.addEventListener('click', function (evt) {
+    if (evt.target === closePopupNode) {
+      mapElementNode.removeChild(adElement);
+    }
+  })
+};
+
+var onPinClick = function () {
+  mapElementNode.addEventListener('click', function (evt) {
+    var i = getPinIndex(evt);
+    showAdDetails(adsAll[i]);
+  })
+
+  mapElementNode.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      var i = getPinIndexForKeys(evt);
+      showAdDetails(adsAll[i]);
+    }
+  })
+
+  closePopup();
+};
+
 var init = function () {
   getDiapasons();
   adsAll = getAdsAll();
-  openMap();
-  createNodes();
-  renderPins();
-  showAdDetails(adsAll[0]);
+  onFirstPinClick();
 };
 
 init();
