@@ -74,6 +74,13 @@ var mapElementNode;
 var mainPinNode;
 var pinsNode;
 var noticeBlockNode;
+var noticeTitleNode;
+var noticePriceNode;
+var noticeTypeNode;
+var noticeTimeInNode;
+var noticeTimeOutNode;
+var timeinOptions;
+var timeoutOptions;
 var adFormNode;
 var adFormHeaderNode;
 var adFormElementNode;
@@ -328,15 +335,16 @@ var showAdDetails = function (ad) {
   getAdPhotos(ad.offer.photos);
 
   mapElementNode.appendChild(adElement);
+  closePopup(adElement);
 };
 
 // Неактивное состояние страницы
 
 var deactivatePage = function () {
-  return disableNotice();
+  disableNotice();
 };
 
-// Работаем с событиями
+// Активное состояние страницы
 
 var getPinLocation = function (x, y) {
   return 'left: ' + (x - PIN_WIDTH / 2).toString(10) + 'px; top: ' + (y - PIN_HEIGHT).toString(10) + 'px;';
@@ -355,6 +363,33 @@ var generateNoticeAdress = function () {
   adFormAdressNode.disabled = true;
 };
 
+var closePopup = function (adElement) {
+  adElement.addEventListener('click', function (evt) {
+    mapElementNode.removeChild(adElement);
+  });
+};
+
+var openPopup = function (evt) {
+  var targetId = evt.target.getAttribute('data-id');
+  showAdDetails(adsAll[targetId]);
+};
+
+var onPinClick = function () {
+  pinsNode = mapElementNode.querySelectorAll('.map__pin:not(.map__pin--main)');
+
+  for (var i = 0; i < pinsNode.length; i++) {
+    pinsNode[i].addEventListener('click', function (evt) {
+      openPopup(evt);
+    });
+
+    pinsNode[i].addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ENTER_KEYCODE) {
+        openPopup(evt);
+      }
+    });
+  }
+};
+
 var activatePage = function () {
   openMap();
   openNotice();
@@ -364,7 +399,7 @@ var activatePage = function () {
   onPinClick();
 };
 
-var onFirstPinClick = function () {
+var addEventListenersForAds = function () {
   mainPinNode = document.querySelector('.map__pin--main');
 
   mainPinNode.addEventListener('mouseup', function () {
@@ -378,44 +413,11 @@ var onFirstPinClick = function () {
   });
 };
 
-var closePopup = function () {
-  closePopupNode = mapAdTemplatePopupNode.querySelector('button.popup__close');
-  closePopupNode.addEventListener('click', function (evt) {
-    if (evt.target === closePopupNode) {
-      mapElementNode.removeChild(adElement);
-    }
-  });
-};
-
-var openPopup = function (evt) {
-  var targetId = evt.target.getAttribute('data-id');
-  return showAdDetails(adsAll[targetId]);
-};
-
-var onPinClick = function () {
-  pinsNode = mapElementNode.querySelectorAll('.map__pin:not(.map__pin--main)');
-
-  for (var i = 0; i < pinsNode.length; i++) {
-    pinsNode[i].addEventListener('click', function (evt) {
-      openPopup(evt);
-      closePopup();
-    });
-
-    pinsNode[i].addEventListener('keydown', function (evt) {
-      if (evt.keyCode === ENTER_KEYCODE) {
-        openPopup(evt);
-        closePopup();
-      }
-    });
-  }
-
-};
-
 var init = function () {
   getDiapasons();
   adsAll = getAdsAll();
   deactivatePage();
-  onFirstPinClick();
+  addEventListenersForAds();
 };
 
 init();
