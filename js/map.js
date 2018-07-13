@@ -71,13 +71,15 @@ var titlesDiapason = [];
 var adsAll = [];
 var mapNode;
 var mapElementNode;
-var mapMainPinNode;
+var mainPinNode;
+var pinsNode;
 var noticeBlockNode;
 var adFormNode;
 var adFormHeaderNode;
 var adFormElementNode;
 var adFormAdressNode;
 var mapAdTemplateNode;
+var mapAdTemplatePopupNode;
 var mapPinElementNode;
 var closePopupNode;
 var popupFeature;
@@ -214,23 +216,6 @@ var getAdPhotos = function (photos) {
   return photosInAd;
 };
 
-var getPinLocation = function (x, y) {
-  return 'left: ' + (x - PIN_WIDTH / 2).toString(10) + 'px; top: ' + (y - PIN_HEIGHT).toString(10) + 'px;';
-};
-
-var getNoticeAdress = function () {
-  var mainPinCoordinates = getCoords(mapMainPinNode);
-  var mainPinX = mainPinCoordinates.left;
-  var mainPinY = mainPinCoordinates.top;
-  var noticeAdress = (mainPinX + PIN_WIDTH / 2) + ', ' + (mainPinY + PIN_IMG_HEIGHT / 2);
-  return noticeAdress;
-};
-
-var generateNoticeAdress = function () {
-  adFormAdressNode = document.querySelector('input[name="address"]');
-  adFormAdressNode.value = getNoticeAdress();
-};
-
 // Генерируем объекты-объявления
 
 var generateAd = function (i) {
@@ -274,11 +259,21 @@ var openMap = function () {
   mapNode.classList.remove('map--faded');
 };
 
-var openNotice = function () {
+var disableNotice = function () {
   noticeBlockNode = document.querySelector('.notice');
   adFormNode = noticeBlockNode.querySelector('.ad-form');
   adFormHeaderNode = adFormNode.querySelector('.ad-form-header');
   adFormElementNode = adFormNode.querySelectorAll('.ad-form__element');
+
+  adFormHeaderNode.disabled = true;
+
+  for (var i = 0; i < adFormElementNode.length; i++) {
+    adFormElementNode[i].disabled = true;
+  }
+
+};
+
+var openNotice = function () {
 
   adFormNode.classList.remove('ad-form--disabled');
   adFormHeaderNode.disabled = false;
@@ -290,8 +285,9 @@ var openNotice = function () {
 
 var createNodes = function () {
   mapElementNode = document.querySelector('.map__pins');
-  mapAdTemplateNode = document.querySelector('#map-ad-template').content.querySelector('.map__card');
-  mapPinElementNode = document.querySelector('button.map__pin');
+  mapAdTemplateNode = document.querySelector('template');
+  mapAdTemplatePopupNode = mapAdTemplateNode.content.querySelector('.map__card');
+  mapPinElementNode = mapAdTemplateNode.content.querySelector('.map__pin');
 };
 
 // Создаем метки на карте
@@ -303,6 +299,8 @@ var renderPins = function () {
     pinElement.style = getPinLocation(adsAll[i].location.x, adsAll[i].location.y);
     pinElement.querySelector('img').src = adsAll[i].author.avatar;
     pinElement.querySelector('img').alt = adsAll[i].offer.title;
+    pinElement.dataset.id = i;
+    pinElement.querySelector('img').dataset.id = i;
 
     mapElementNode.appendChild(pinElement);
   }
@@ -311,7 +309,7 @@ var renderPins = function () {
 // Создаем объявление
 
 var showAdDetails = function (ad) {
-  adElement = mapAdTemplateNode.cloneNode(true);
+  adElement = mapAdTemplatePopupNode.cloneNode(true);
 
   adElement.querySelector('.popup__avatar').src = ad.author.avatar;
   adElement.querySelector('.popup__title').textContent = ad.offer.title;
@@ -332,7 +330,30 @@ var showAdDetails = function (ad) {
   mapElementNode.appendChild(adElement);
 };
 
+// Неактивное состояние страницы
+
+var deactivatePage = function () {
+  return disableNotice();
+};
+
 // Работаем с событиями
+
+var getPinLocation = function (x, y) {
+  return 'left: ' + (x - PIN_WIDTH / 2).toString(10) + 'px; top: ' + (y - PIN_HEIGHT).toString(10) + 'px;';
+};
+
+var getNoticeAdress = function () {
+  var mainPinCoordinates = getCoords(mainPinNode);
+  var mainPinX = mainPinCoordinates.left;
+  var mainPinY = mainPinCoordinates.top;
+  return (mainPinX + PIN_WIDTH / 2) + ', ' + (mainPinY + PIN_IMG_HEIGHT / 2);
+};
+
+var generateNoticeAdress = function () {
+  adFormAdressNode = document.querySelector('input[name="address"]');
+  adFormAdressNode.value = getNoticeAdress();
+  adFormAdressNode.disabled = true;
+};
 
 var activatePage = function () {
   openMap();
@@ -344,71 +365,56 @@ var activatePage = function () {
 };
 
 var onFirstPinClick = function () {
-  mapMainPinNode = document.querySelector('.map__pin--main');
+  mainPinNode = document.querySelector('.map__pin--main');
 
-  mapMainPinNode.addEventListener('mouseup', function () {
+  mainPinNode.addEventListener('mouseup', function () {
     activatePage();
-  })
+  });
 
-  mapMainPinNode.addEventListener('keydown', function (evt) {
+  mainPinNode.addEventListener('keydown', function (evt) {
     if (evt.keyCode === ENTER_KEYCODE) {
       activatePage();
     }
-  })
-};
-
-var getPinIndex = function (evt) {
-  var clickTarget = evt.target;
-  var index;
-  for (var i = 0; i < adsAll.length; i++) {
-    if (adsAll[i].offer.title === clickTarget.alt) {
-      index = i;
-      break;
-    }
-  }
-  return index;
-};
-
-var getPinIndexForKeys = function (evt) {
-  var clickTarget = evt.target;
-  var index;
-  for (var i = 0; i < adsAll.length; i++) {
-    if (adsAll[i].offer.title === clickTarget.children[0].alt) {
-      index = i;
-      break;
-    }
-  }
-  return index;
+  });
 };
 
 var closePopup = function () {
-  closePopupNode = mapAdTemplateNode.querySelector('.popup__close');
-  mapElementNode.addEventListener('click', function (evt) {
+  closePopupNode = mapAdTemplatePopupNode.querySelector('button.popup__close');
+  closePopupNode.addEventListener('click', function (evt) {
     if (evt.target === closePopupNode) {
       mapElementNode.removeChild(adElement);
     }
-  })
+  });
+};
+
+var openPopup = function (evt) {
+  var targetId = evt.target.getAttribute('data-id');
+  return showAdDetails(adsAll[targetId]);
 };
 
 var onPinClick = function () {
-  mapElementNode.addEventListener('click', function (evt) {
-    var i = getPinIndex(evt);
-    showAdDetails(adsAll[i]);
-  })
+  pinsNode = mapElementNode.querySelectorAll('.map__pin:not(.map__pin--main)');
 
-  mapElementNode.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ENTER_KEYCODE) {
-      var i = getPinIndexForKeys(evt);
-      showAdDetails(adsAll[i]);
-    }
-  })
+  for (var i = 0; i < pinsNode.length; i++) {
+    pinsNode[i].addEventListener('click', function (evt) {
+      openPopup(evt);
+      closePopup();
+    });
 
-  closePopup();
+    pinsNode[i].addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ENTER_KEYCODE) {
+        openPopup(evt);
+        closePopup();
+      }
+    });
+  }
+
 };
 
 var init = function () {
   getDiapasons();
   adsAll = getAdsAll();
+  deactivatePage();
   onFirstPinClick();
 };
 
