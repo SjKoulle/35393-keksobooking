@@ -74,13 +74,6 @@ var mapElementNode;
 var mainPinNode;
 var pinsNode;
 var noticeBlockNode;
-var noticeTitleNode;
-var noticePriceNode;
-var noticeTypeNode;
-var noticeTimeInNode;
-var noticeTimeOutNode;
-var timeinOptions;
-var timeoutOptions;
 var adFormNode;
 var adFormHeaderNode;
 var adFormElementNode;
@@ -88,7 +81,6 @@ var adFormAdressNode;
 var mapAdTemplateNode;
 var mapAdTemplatePopupNode;
 var mapPinElementNode;
-var closePopupNode;
 var popupFeature;
 var popupPhotos;
 var popupPhoto;
@@ -363,9 +355,9 @@ var generateNoticeAdress = function () {
   adFormAdressNode.disabled = true;
 };
 
-var closePopup = function (adElement) {
-  adElement.addEventListener('click', function (evt) {
-    mapElementNode.removeChild(adElement);
+var closePopup = function (elem) {
+  elem.addEventListener('click', function () {
+    mapElementNode.removeChild(elem);
   });
 };
 
