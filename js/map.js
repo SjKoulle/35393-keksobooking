@@ -16,7 +16,9 @@ var MIN_LOCATION_Y = 130;
 var MAX_LOCATION_Y = 630;
 var ADS_QUANTITY = 8;
 var PIN_WIDTH = 40;
+var PIN_IMG_HEIGHT = 44;
 var PIN_HEIGHT = 66;
+var ENTER_KEYCODE = 13;
 
 var TITLES = [
   'Большая уютная квартира',
@@ -63,16 +65,27 @@ var PHOTOS_URL = [
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
 
+var ads = [];
 var avatarDiapason = [];
 var titlesDiapason = [];
 var adsAll = [];
 var mapNode;
 var mapElementNode;
+var mainPinNode;
+var pinsNode;
+var noticeBlockNode;
+var adFormNode;
+var adFormHeaderNode;
+var adFormElementNode;
+var adFormAdressNode;
 var mapAdTemplateNode;
+var mapAdTemplatePopupNode;
 var mapPinElementNode;
 var popupFeature;
 var popupPhotos;
 var popupPhoto;
+var adElement;
+
 
 var getRandomInRange = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -96,6 +109,15 @@ var getRandomUnic = function (length, min, max) {
   }
 
   return numReserve;
+};
+
+var getCoords = function (elem) {
+  var box = elem.getBoundingClientRect();
+
+  return {
+    top: box.top + pageYOffset,
+    left: box.left + pageXOffset
+  };
 };
 
 var getDiapasons = function () {
@@ -193,11 +215,7 @@ var getAdPhotos = function (photos) {
   return photosInAd;
 };
 
-var getPinLocation = function (x, y) {
-  return 'left: ' + (x - PIN_WIDTH / 2).toString(10) + 'px; top: ' + (y - PIN_HEIGHT).toString(10) + 'px;';
-};
-
-// Генерируем объявления
+// Генерируем объекты-объявления
 
 var generateAd = function (i) {
   var ad = {};
@@ -223,7 +241,6 @@ var generateAd = function (i) {
 };
 
 var getAds = function (quantity) {
-  var ads = [];
   for (var i = 0; i < quantity; i++) {
     ads[i] = generateAd(i);
   }
@@ -241,10 +258,35 @@ var openMap = function () {
   mapNode.classList.remove('map--faded');
 };
 
+var disableNotice = function () {
+  noticeBlockNode = document.querySelector('.notice');
+  adFormNode = noticeBlockNode.querySelector('.ad-form');
+  adFormHeaderNode = adFormNode.querySelector('.ad-form-header');
+  adFormElementNode = adFormNode.querySelectorAll('.ad-form__element');
+
+  adFormHeaderNode.disabled = true;
+
+  for (var i = 0; i < adFormElementNode.length; i++) {
+    adFormElementNode[i].disabled = true;
+  }
+
+};
+
+var openNotice = function () {
+
+  adFormNode.classList.remove('ad-form--disabled');
+  adFormHeaderNode.disabled = false;
+
+  for (var i = 0; i < adFormElementNode.length; i++) {
+    adFormElementNode[i].disabled = false;
+  }
+};
+
 var createNodes = function () {
   mapElementNode = document.querySelector('.map__pins');
-  mapAdTemplateNode = document.querySelector('#map-ad-template').content.querySelector('.map__card');
-  mapPinElementNode = document.querySelector('button.map__pin');
+  mapAdTemplateNode = document.querySelector('template');
+  mapAdTemplatePopupNode = mapAdTemplateNode.content.querySelector('.map__card');
+  mapPinElementNode = mapAdTemplateNode.content.querySelector('.map__pin');
 };
 
 // Создаем метки на карте
@@ -256,17 +298,17 @@ var renderPins = function () {
     pinElement.style = getPinLocation(adsAll[i].location.x, adsAll[i].location.y);
     pinElement.querySelector('img').src = adsAll[i].author.avatar;
     pinElement.querySelector('img').alt = adsAll[i].offer.title;
+    pinElement.dataset.id = i;
+    pinElement.querySelector('img').dataset.id = i;
 
     mapElementNode.appendChild(pinElement);
   }
-
-  mapElementNode.removeChild(mapPinElementNode);
 };
 
 // Создаем объявление
 
 var showAdDetails = function (ad) {
-  var adElement = mapAdTemplateNode.cloneNode(true);
+  adElement = mapAdTemplatePopupNode.cloneNode(true);
 
   adElement.querySelector('.popup__avatar').src = ad.author.avatar;
   adElement.querySelector('.popup__title').textContent = ad.offer.title;
@@ -285,15 +327,89 @@ var showAdDetails = function (ad) {
   getAdPhotos(ad.offer.photos);
 
   mapElementNode.appendChild(adElement);
+  closePopup(adElement);
+};
+
+// Неактивное состояние страницы
+
+var deactivatePage = function () {
+  disableNotice();
+};
+
+// Активное состояние страницы
+
+var getPinLocation = function (x, y) {
+  return 'left: ' + (x - PIN_WIDTH / 2).toString(10) + 'px; top: ' + (y - PIN_HEIGHT).toString(10) + 'px;';
+};
+
+var getNoticeAdress = function () {
+  var mainPinCoordinates = getCoords(mainPinNode);
+  var mainPinX = mainPinCoordinates.left;
+  var mainPinY = mainPinCoordinates.top;
+  return (mainPinX + PIN_WIDTH / 2) + ', ' + (mainPinY + PIN_IMG_HEIGHT / 2);
+};
+
+var generateNoticeAdress = function () {
+  adFormAdressNode = document.querySelector('input[name="address"]');
+  adFormAdressNode.value = getNoticeAdress();
+  adFormAdressNode.disabled = true;
+};
+
+var closePopup = function (elem) {
+  elem.addEventListener('click', function () {
+    mapElementNode.removeChild(elem);
+  });
+};
+
+var openPopup = function (evt) {
+  var targetId = evt.target.getAttribute('data-id');
+  showAdDetails(adsAll[targetId]);
+};
+
+var onPinClick = function () {
+  pinsNode = mapElementNode.querySelectorAll('.map__pin:not(.map__pin--main)');
+
+  for (var i = 0; i < pinsNode.length; i++) {
+    pinsNode[i].addEventListener('click', function (evt) {
+      openPopup(evt);
+    });
+
+    pinsNode[i].addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ENTER_KEYCODE) {
+        openPopup(evt);
+      }
+    });
+  }
+};
+
+var activatePage = function () {
+  openMap();
+  openNotice();
+  generateNoticeAdress();
+  createNodes();
+  renderPins();
+  onPinClick();
+};
+
+var addEventListenersForAds = function () {
+  mainPinNode = document.querySelector('.map__pin--main');
+
+  mainPinNode.addEventListener('mouseup', function () {
+    activatePage();
+  });
+
+  mainPinNode.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      activatePage();
+    }
+  });
 };
 
 var init = function () {
   getDiapasons();
   adsAll = getAdsAll();
-  openMap();
-  createNodes();
-  renderPins();
-  showAdDetails(adsAll[0]);
+  deactivatePage();
+  addEventListenersForAds();
 };
 
 init();
