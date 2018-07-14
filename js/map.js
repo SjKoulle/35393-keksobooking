@@ -74,6 +74,12 @@ var mapElementNode;
 var mainPinNode;
 var pinsNode;
 var noticeBlockNode;
+var noticePriceNode;
+var noticeTypeNode;
+var noticeTimeInNode;
+var noticeTimeOutNode;
+var noticeRoomsNode;
+var noticeCapacityNode;
 var adFormNode;
 var adFormHeaderNode;
 var adFormElementNode;
@@ -85,7 +91,8 @@ var popupFeature;
 var popupPhotos;
 var popupPhoto;
 var adElement;
-
+var noticeButtonSubmitNode;
+var noticeInputElementsNode;
 
 var getRandomInRange = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -352,7 +359,8 @@ var getNoticeAdress = function () {
 var generateNoticeAdress = function () {
   adFormAdressNode = document.querySelector('input[name="address"]');
   adFormAdressNode.value = getNoticeAdress();
-  adFormAdressNode.disabled = true;
+  adFormAdressNode.textContent = getNoticeAdress();
+  adFormAdressNode.readOnly = true;
 };
 
 var closePopup = function (elem) {
@@ -389,6 +397,7 @@ var activatePage = function () {
   createNodes();
   renderPins();
   onPinClick();
+  addEventListenersForForm();
 };
 
 var addEventListenersForAds = function () {
@@ -402,6 +411,153 @@ var addEventListenersForAds = function () {
     if (evt.keyCode === ENTER_KEYCODE) {
       activatePage();
     }
+  });
+};
+
+// Валидация формы
+
+var setTypePrice = function () {
+  var noticeTypeCheckedElementNode = noticeTypeNode.querySelector('option:checked');
+  if (noticeTypeCheckedElementNode.value === 'flat') {
+    noticePriceNode.min = 1000;
+    noticePriceNode.placeholder = '1 000';
+  } else if (noticeTypeCheckedElementNode.value === 'bungalo') {
+    noticePriceNode.min = 0;
+    noticePriceNode.placeholder = '0';
+  } else if (noticeTypeCheckedElementNode.value === 'house') {
+    noticePriceNode.min = 5000;
+    noticePriceNode.placeholder = '5 000';
+  } else if (noticeTypeCheckedElementNode.value === 'palace') {
+    noticePriceNode.min = 10000;
+    noticePriceNode.placeholder = '10 000';
+  }
+};
+
+var setCheckout = function (evt) {
+  var checkinValue = evt.target.value;
+  noticeTimeOutNode.value = checkinValue;
+};
+
+var setCheckin = function (evt) {
+  var checkoutValue = evt.target.value;
+  noticeTimeInNode.value = checkoutValue;
+};
+
+var getCustomCapacityMessage = function (evt) {
+  var roomsValue = noticeRoomsNode.value;
+  var capacityValue = evt.target.value;
+  var message = '';
+
+  if (roomsValue === '1') {
+    if (capacityValue === '2' || capacityValue === '3' || capacityValue === '0') {
+      message = 'Недопустимое количество гостей. Для одной комнаты может быть выбран только один гость';
+    }
+  } else if (roomsValue === '2') {
+    if (capacityValue === '3' || capacityValue === '0') {
+      message = 'Недопустимое количество гостей. Для двух комнат можно указать не больше двух гостей';
+    }
+  } else if (roomsValue === '3') {
+    if (capacityValue === '0') {
+      message = 'Недопустимое количество гостей. Три комнаты нельзя указать не для гостей';
+    }
+  } else if (roomsValue === '100') {
+    if (capacityValue === '1' || capacityValue === '2' || capacityValue === '3') {
+      message = 'Данное количество комнат можно указать только не для гостей';
+    }
+  }
+
+  return message;
+};
+
+var validateCapacity = function (evt) {
+  var customCapacityMessage = getCustomCapacityMessage(evt);
+  noticeCapacityNode.setCustomValidity(customCapacityMessage);
+};
+
+var CustomValidation = function () {};
+
+CustomValidation.prototype = {
+  invalidities: [],
+
+  checkValidity: function (input) {
+    var validity = input.validity;
+    this.invalidities.length = 0;
+
+    if (validity.valueMissing) {
+      this.addInvalidity('!Пожалуйста, заполните поле');
+    }
+
+    if (validity.rangeOverflow) {
+      var max = input.max;
+      this.addInvalidity('!Значение должно быть меньше или равно ' + max);
+    }
+
+    if (validity.rangeUnderflow) {
+      var min = input.min;
+      this.addInvalidity('!Значение должно быть больше или равно ' + min);
+    }
+
+    if (validity.tooLong) {
+      var maxLen = input.maxLength;
+      this.addInvalidity('Максимальная допустимая длина ' + maxLen + ' символов');
+    }
+
+    if (validity.tooShort) {
+      var minLen = input.minLength;
+      this.addInvalidity('Минимальная допустимая длина ' + minLen + ' символов');
+    }
+  },
+
+  addInvalidity: function (message) {
+    this.invalidities.push(message);
+  },
+
+  getInvalidities: function () {
+    return this.invalidities.join('. \n');
+  }
+};
+
+var validateAdForm = function () {
+  for (var i = 0; i < noticeInputElementsNode.length; i++) {
+    var input = noticeInputElementsNode[i];
+
+    if (input.checkValidity() === false) {
+      var inputCustomValidation = new CustomValidation();
+      inputCustomValidation.checkValidity(input);
+      var customValidityMessage = inputCustomValidation.getInvalidities();
+      input.setCustomValidity(customValidityMessage);
+    }
+  }
+};
+
+var addEventListenersForForm = function () {
+  noticePriceNode = noticeBlockNode.querySelector('input[name="price"]');
+  noticeTypeNode = noticeBlockNode.querySelector('select[name="type"]');
+  noticeTimeInNode = noticeBlockNode.querySelector('select[name="timein"]');
+  noticeTimeOutNode = noticeBlockNode.querySelector('select[name="timeout"]');
+  noticeRoomsNode = noticeBlockNode.querySelector('select[name="rooms"]');
+  noticeCapacityNode = noticeBlockNode.querySelector('select[name="capacity"]');
+  noticeInputElementsNode = noticeBlockNode.querySelectorAll('input');
+  noticeButtonSubmitNode = noticeBlockNode.querySelector('.ad-form__submit');
+
+  noticeTypeNode.addEventListener('change', function () {
+    setTypePrice();
+  });
+
+  noticeTimeInNode.addEventListener('change', function (evt) {
+    setCheckout(evt);
+  });
+
+  noticeTimeOutNode.addEventListener('change', function (evt) {
+    setCheckin(evt);
+  });
+
+  noticeCapacityNode.addEventListener('change', function (evt) {
+    validateCapacity(evt);
+  });
+
+  noticeButtonSubmitNode.addEventListener('click', function () {
+    validateAdForm();
   });
 };
 
