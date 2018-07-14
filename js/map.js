@@ -19,6 +19,7 @@ var PIN_WIDTH = 40;
 var PIN_IMG_HEIGHT = 44;
 var PIN_HEIGHT = 66;
 var ENTER_KEYCODE = 13;
+var ESC_KEYCODE = 27;
 
 var TITLES = [
   'Большая уютная квартира',
@@ -334,6 +335,7 @@ var showAdDetails = function (ad) {
   getAdPhotos(ad.offer.photos);
 
   mapElementNode.appendChild(adElement);
+
   closePopup(adElement);
 };
 
@@ -366,6 +368,18 @@ var generateNoticeAdress = function () {
 var closePopup = function (elem) {
   elem.addEventListener('click', function () {
     mapElementNode.removeChild(elem);
+  });
+
+  document.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      mapElementNode.removeChild(elem);
+    }
+  });
+
+  elem.querySelector('.popup__close').addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      mapElementNode.removeChild(elem);
+    }
   });
 };
 
