@@ -370,11 +370,14 @@ var closePopup = function (elem) {
     mapElementNode.removeChild(elem);
   });
 
-  document.addEventListener('keydown', function (evt) {
+  var closePopupOnEsc = function (evt) {
     if (evt.keyCode === ESC_KEYCODE) {
       mapElementNode.removeChild(elem);
+      document.removeEventListener('keydown', closePopupOnEsc);
     }
-  });
+  };
+
+  document.addEventListener('keydown', closePopupOnEsc);
 
   elem.querySelector('.popup__close').addEventListener('keydown', function (evt) {
     if (evt.keyCode === ENTER_KEYCODE) {
