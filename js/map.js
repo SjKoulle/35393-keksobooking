@@ -460,34 +460,26 @@ var setCheckin = function (evt) {
   noticeTimeInNode.value = checkoutValue;
 };
 
-var getCustomCapacityMessage = function (evt) {
+var getCustomCapacityMessage = function () {
   var roomsValue = noticeRoomsNode.value;
-  var capacityValue = evt.target.value;
+  var capacityValue = noticeCapacityNode.value;
   var message = '';
 
-  if (roomsValue === '1') {
-    if (capacityValue === '2' || capacityValue === '3' || capacityValue === '0') {
-      message = 'Недопустимое количество гостей. Для одной комнаты может быть выбран только один гость';
-    }
-  } else if (roomsValue === '2') {
-    if (capacityValue === '3' || capacityValue === '0') {
-      message = 'Недопустимое количество гостей. Для двух комнат можно указать не больше двух гостей';
-    }
-  } else if (roomsValue === '3') {
-    if (capacityValue === '0') {
-      message = 'Недопустимое количество гостей. Три комнаты нельзя указать не для гостей';
-    }
-  } else if (roomsValue === '100') {
-    if (capacityValue === '1' || capacityValue === '2' || capacityValue === '3') {
-      message = 'Данное количество комнат можно указать только не для гостей';
-    }
+  if (roomsValue === '1' && (capacityValue === '2' || capacityValue === '3' || capacityValue === '0')) {
+    message = 'Недопустимое количество гостей. Для одной комнаты может быть выбран только один гость';
+  } else if (roomsValue === '2' && (capacityValue === '3' || capacityValue === '0')) {
+    message = 'Недопустимое количество гостей. Для двух комнат можно указать не больше двух гостей';
+  } else if (roomsValue === '3' && (capacityValue === '0')) {
+    message = 'Недопустимое количество гостей. Три комнаты нельзя указать не для гостей';
+  } else if (roomsValue === '100' && (capacityValue === '1' || capacityValue === '2' || capacityValue === '3')) {
+    message = 'Данное количество комнат можно указать только не для гостей';
   }
 
   return message;
 };
 
-var validateCapacity = function (evt) {
-  var customCapacityMessage = getCustomCapacityMessage(evt);
+var validateCapacity = function () {
+  var customCapacityMessage = getCustomCapacityMessage();
   noticeCapacityNode.setCustomValidity(customCapacityMessage);
 };
 
@@ -501,27 +493,23 @@ CustomValidation.prototype = {
     this.invalidities.length = 0;
 
     if (validity.valueMissing) {
-      this.addInvalidity('!Пожалуйста, заполните поле');
+      this.addInvalidity('Пожалуйста, заполните поле');
     }
 
     if (validity.rangeOverflow) {
-      var max = input.max;
-      this.addInvalidity('!Значение должно быть меньше или равно ' + max);
+      this.addInvalidity('Значение должно быть меньше или равно ' + input.max);
     }
 
     if (validity.rangeUnderflow) {
-      var min = input.min;
-      this.addInvalidity('!Значение должно быть больше или равно ' + min);
+      this.addInvalidity('Значение должно быть больше или равно ' + input.min);
     }
 
     if (validity.tooLong) {
-      var maxLen = input.maxLength;
-      this.addInvalidity('Максимальная допустимая длина ' + maxLen + ' символов');
+      this.addInvalidity('Максимальная допустимая длина ' + input.maxLength + ' символов');
     }
 
     if (validity.tooShort) {
-      var minLen = input.minLength;
-      this.addInvalidity('Минимальная допустимая длина ' + minLen + ' символов');
+      this.addInvalidity('Минимальная допустимая длина ' + input.minLength + ' символов');
     }
   },
 
@@ -575,6 +563,7 @@ var addEventListenersForForm = function () {
 
   noticeButtonSubmitNode.addEventListener('click', function () {
     validateAdForm();
+    validateCapacity();
   });
 };
 
