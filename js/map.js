@@ -122,11 +122,17 @@ var getRandomUnic = function (length, min, max) {
 
 var getCoords = function (elem) {
   var box = elem.getBoundingClientRect();
+  var indentX = (self.innerWidth - document.body.clientWidth) / 2;
+  var coords = {};
 
-  return {
-    top: box.top + pageYOffset,
-    left: box.left + pageXOffset - PIN_MAIN_WIDTH / 2
-  };
+  if (self.innerWidth >= document.body.clientWidth) {
+    coords.left = box.left + pageXOffset - indentX;
+  } else {
+    coords.left = box.left + pageXOffset;
+  }
+
+  coords.top = box.top + pageYOffset;
+  return coords;
 };
 
 var getDiapasons = function () {
@@ -353,10 +359,11 @@ var getPinLocation = function (x, y) {
 };
 
 var getMainPinCoords = function () {
-  var mainPinCoordinates = getCoords(mainPinNode);
-  mainPinX = mainPinCoordinates.left;
-  mainPinY = mainPinCoordinates.top;
-  return Math.ceil((mainPinX + PIN_MAIN_WIDTH / 2)) + ', ' + Math.ceil((mainPinY + PIN_HEIGHT));
+  var MainPinCoords = getCoords(mainPinNode);
+  mainPinX = MainPinCoords.left;
+  mainPinY = MainPinCoords.top;
+
+  return Math.ceil(mainPinX + PIN_MAIN_WIDTH / 2) + ', ' + Math.ceil(mainPinY + PIN_HEIGHT);
 };
 
 var generateNoticeAdress = function () {
