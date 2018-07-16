@@ -15,7 +15,6 @@ var MAX_LOCATION_X = 1200;
 var MIN_LOCATION_Y = 130;
 var MAX_LOCATION_Y = 630;
 var ADS_QUANTITY = 8;
-var PIN_WIDTH = 40;
 var PIN_MAIN_WIDTH = 62;
 var PIN_HEIGHT = 66;
 var ENTER_KEYCODE = 13;
@@ -126,7 +125,7 @@ var getCoords = function (elem) {
 
   return {
     top: box.top + pageYOffset,
-    left: box.left + pageXOffset
+    left: box.left + pageXOffset - 8
   };
 };
 
@@ -350,14 +349,14 @@ var deactivatePage = function () {
 // Активное состояние страницы
 
 var getPinLocation = function (x, y) {
-  return 'left: ' + (x - PIN_WIDTH / 2).toString(10) + 'px; top: ' + (y - PIN_HEIGHT).toString(10) + 'px;';
+  return 'left: ' + (x - PIN_MAIN_WIDTH / 2).toString(10) + 'px; top: ' + (y - PIN_HEIGHT).toString(10) + 'px;';
 };
 
 var getMainPinCoords = function () {
   var mainPinCoordinates = getCoords(mainPinNode);
   mainPinX = mainPinCoordinates.left;
   mainPinY = mainPinCoordinates.top;
-  return Math.ceil((mainPinX + PIN_MAIN_WIDTH / 2)) + ', ' + Math.ceil((mainPinY + PIN_HEIGHT / 2));
+  return Math.ceil((mainPinX + PIN_MAIN_WIDTH / 2)) + ', ' + Math.ceil((mainPinY + PIN_HEIGHT));
 };
 
 var generateNoticeAdress = function () {
