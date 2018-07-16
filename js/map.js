@@ -10,13 +10,13 @@ var MIN_PRICE = 1000;
 var MAX_PRICE = 1000000;
 var MAX_ROOMS = 5;
 var MAX_GUESTS = 10;
-var MIN_LOCATION_X = 200;
-var MAX_LOCATION_X = 1000;
+var MIN_LOCATION_X = 0;
+var MAX_LOCATION_X = 1200;
 var MIN_LOCATION_Y = 130;
 var MAX_LOCATION_Y = 630;
 var ADS_QUANTITY = 8;
 var PIN_WIDTH = 40;
-var PIN_IMG_HEIGHT = 44;
+var PIN_MAIN_WIDTH = 62;
 var PIN_HEIGHT = 66;
 var ENTER_KEYCODE = 13;
 var ESC_KEYCODE = 27;
@@ -73,6 +73,8 @@ var adsAll = [];
 var mapNode;
 var mapElementNode;
 var mainPinNode;
+var mainPinX;
+var mainPinY;
 var pinsNode;
 var noticeBlockNode;
 var noticePriceNode;
@@ -351,17 +353,17 @@ var getPinLocation = function (x, y) {
   return 'left: ' + (x - PIN_WIDTH / 2).toString(10) + 'px; top: ' + (y - PIN_HEIGHT).toString(10) + 'px;';
 };
 
-var getNoticeAdress = function () {
+var getMainPinCoords = function () {
   var mainPinCoordinates = getCoords(mainPinNode);
-  var mainPinX = mainPinCoordinates.left;
-  var mainPinY = mainPinCoordinates.top;
-  return (mainPinX + PIN_WIDTH / 2) + ', ' + (mainPinY + PIN_IMG_HEIGHT / 2);
+  mainPinX = mainPinCoordinates.left;
+  mainPinY = mainPinCoordinates.top;
+  return Math.ceil((mainPinX + PIN_MAIN_WIDTH / 2)) + ', ' + Math.ceil((mainPinY + PIN_HEIGHT / 2));
 };
 
 var generateNoticeAdress = function () {
   adFormAdressNode = document.querySelector('input[name="address"]');
-  adFormAdressNode.value = getNoticeAdress();
-  adFormAdressNode.textContent = getNoticeAdress();
+  adFormAdressNode.value = getMainPinCoords();
+  adFormAdressNode.textContent = getMainPinCoords();
   adFormAdressNode.readOnly = true;
 };
 
@@ -391,7 +393,7 @@ var openPopup = function (evt) {
   showAdDetails(adsAll[targetId]);
 };
 
-var onPinClick = function () {
+var addEventListenersForPins = function () {
   pinsNode = mapElementNode.querySelectorAll('.map__pin:not(.map__pin--main)');
 
   for (var i = 0; i < pinsNode.length; i++) {
@@ -413,15 +415,68 @@ var activatePage = function () {
   generateNoticeAdress();
   createNodes();
   renderPins();
-  onPinClick();
+  addEventListenersForPins();
   addEventListenersForForm();
 };
 
-var addEventListenersForAds = function () {
+var addEventListenersForMainPin = function () {
   mainPinNode = document.querySelector('.map__pin--main');
 
-  mainPinNode.addEventListener('mouseup', function () {
-    activatePage();
+
+  mainPinNode.addEventListener('mousedown', function (evt) {
+    evt.preventDefault();
+
+    var startCoords = {
+      x: evt.clientX,
+      y: evt.clientY
+    };
+
+    var onMouseMove = function (moveEvt) {
+      moveEvt.preventDefault();
+
+      var shift = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY
+      };
+
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY
+      };
+
+      var actualPinPosition = {
+        x: mainPinNode.offsetLeft - shift.x,
+        y: mainPinNode.offsetTop - shift.y
+      };
+
+      var mapBorder = {
+        top: MIN_LOCATION_Y - PIN_HEIGHT,
+        right: MAX_LOCATION_X - PIN_MAIN_WIDTH,
+        bottom: MAX_LOCATION_Y - PIN_HEIGHT,
+        left: MIN_LOCATION_X
+      };
+
+      if (actualPinPosition.x >= mapBorder.left && actualPinPosition.x <= mapBorder.right) {
+        mainPinNode.style.left = actualPinPosition.x + 'px';
+      }
+
+      if (actualPinPosition.y >= mapBorder.top && actualPinPosition.y <= mapBorder.bottom) {
+        mainPinNode.style.top = actualPinPosition.y + 'px';
+      }
+
+      generateNoticeAdress();
+    };
+
+    var onMouseUp = function (upEvt) {
+      upEvt.preventDefault();
+      activatePage();
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
   });
 
   mainPinNode.addEventListener('keydown', function (evt) {
@@ -571,7 +626,7 @@ var init = function () {
   getDiapasons();
   adsAll = getAdsAll();
   deactivatePage();
-  addEventListenersForAds();
+  addEventListenersForMainPin();
 };
 
 init();
