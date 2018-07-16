@@ -125,7 +125,7 @@ var getCoords = function (elem) {
 
   return {
     top: box.top + pageYOffset,
-    left: box.left + pageXOffset - 8
+    left: box.left + pageXOffset - PIN_MAIN_WIDTH / 2
   };
 };
 
