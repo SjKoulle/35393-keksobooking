@@ -65,14 +65,13 @@
   };
 
   var getAdPhotos = function (photos) {
-    var photosUrls = photos;
     var photosInAd = [];
     popupPhotos.removeChild(popupPhoto);
 
-    for (var i = 0; i < photosUrls.length; i++) {
+    for (var i = 0; i < photos.length; i++) {
       var photoInAd = popupPhoto.cloneNode(true);
 
-      photoInAd.src = photosUrls[i];
+      photoInAd.src = photos[i];
       photosInAd[i] = photoInAd;
 
       popupPhotos.appendChild(photosInAd[i]);

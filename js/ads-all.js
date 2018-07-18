@@ -64,7 +64,6 @@
     'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
   ];
 
-  var ads = [];
   var avatarDiapason = [];
   var titlesDiapason = [];
   window.adsAll = [];
@@ -143,6 +142,7 @@
   };
 
   var getAds = function (quantity) {
+    var ads = [];
     for (var i = 0; i < quantity; i++) {
       ads[i] = generateAd(i);
     }

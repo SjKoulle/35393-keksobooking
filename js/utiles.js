@@ -5,13 +5,13 @@
   var ESC_KEYCODE = 27;
 
   window.utiles = {
-    isEscEvent: function (evt, action) {
+    performActionIfEscEvent: function (evt, action) {
       if (evt.keyCode === ESC_KEYCODE) {
         action();
       }
     },
 
-    isEnterEvent: function (evt, action) {
+    performActionIfEnterEvent: function (evt, action) {
       if (evt.keyCode === ENTER_KEYCODE) {
         action(evt);
       }

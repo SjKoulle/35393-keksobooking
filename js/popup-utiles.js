@@ -16,7 +16,7 @@
       });
 
       var closePopupOnEsc = function (evt) {
-        window.utiles.isEscEvent(evt, function () {
+        window.utiles.performActionIfEscEvent(evt, function () {
           mapElementNode.removeChild(elem);
           document.removeEventListener('keydown', closePopupOnEsc);
         });
@@ -25,7 +25,7 @@
       document.addEventListener('keydown', closePopupOnEsc);
 
       elem.querySelector('.popup__close').addEventListener('keydown', function (evt) {
-        window.utiles.isEnterEvent(evt, mapElementNode.removeChild(elem));
+        window.utiles.performActionIfEnterEvent(evt, mapElementNode.removeChild(elem));
       });
     }
   };

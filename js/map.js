@@ -33,7 +33,7 @@
       });
 
       pinsNode[i].addEventListener('keydown', function (evt) {
-        window.utiles.isEnterEvent(evt, window.popupUtiles.openPopup);
+        window.utiles.performActionIfEnterEvent(evt, window.popupUtiles.openPopup);
       });
     }
   };
@@ -98,7 +98,7 @@
     });
 
     mainPinNode.addEventListener('keydown', function (evt) {
-      window.utiles.isEnterEvent(evt, activatePage);
+      window.utiles.performActionIfEnterEvent(evt, activatePage);
     });
   };
 

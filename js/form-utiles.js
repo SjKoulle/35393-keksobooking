@@ -5,19 +5,19 @@
   var PIN_MAIN_WIDTH = 65;
   var PIN_MAIN_HEIGHT = 87;
 
-  var noticeBlockNode;
-  var noticePriceNode;
-  var noticeTypeNode;
-  var noticeTimeInNode;
-  var noticeTimeOutNode;
-  var noticeRoomsNode;
-  var noticeCapacityNode;
-  var adFormNode;
-  var adFormHeaderNode;
-  var adFormElementNode;
-  var adFormAdressNode;
-  var noticeButtonSubmitNode;
-  var noticeInputElementsNode;
+  var noticeBlockNode = document.querySelector('.notice');
+  var noticePriceNode = noticeBlockNode.querySelector('input[name="price"]');
+  var noticeTypeNode = noticeBlockNode.querySelector('select[name="type"]');
+  var noticeTimeInNode = noticeBlockNode.querySelector('select[name="timein"]');
+  var noticeTimeOutNode = noticeBlockNode.querySelector('select[name="timeout"]');
+  var noticeRoomsNode = noticeBlockNode.querySelector('select[name="rooms"]');
+  var noticeCapacityNode = noticeBlockNode.querySelector('select[name="capacity"]');
+  var adFormNode = noticeBlockNode.querySelector('.ad-form');
+  var adFormHeaderNode = adFormNode.querySelector('.ad-form-header');
+  var adFormElementNode = adFormNode.querySelectorAll('.ad-form__element');
+  var adFormAdressNode = document.querySelector('input[name="address"]');
+  var noticeButtonSubmitNode = noticeBlockNode.querySelector('.ad-form__submit');
+  var noticeInputElementsNode = noticeBlockNode.querySelectorAll('input');
   var mainPinX;
   var mainPinY;
   var mainPinNode;
@@ -143,10 +143,7 @@
 
   window.formUtiles = {
     disableNotice: function () {
-      noticeBlockNode = document.querySelector('.notice');
-      adFormNode = noticeBlockNode.querySelector('.ad-form');
-      adFormHeaderNode = adFormNode.querySelector('.ad-form-header');
-      adFormElementNode = adFormNode.querySelectorAll('.ad-form__element');
+
 
       adFormHeaderNode.disabled = true;
 
@@ -166,22 +163,12 @@
     },
 
     generateNoticeAdress: function () {
-      adFormAdressNode = document.querySelector('input[name="address"]');
       adFormAdressNode.value = getMainPinCoords();
       adFormAdressNode.textContent = getMainPinCoords();
       adFormAdressNode.readOnly = true;
     },
 
     addEventListenersForForm: function () {
-      noticePriceNode = noticeBlockNode.querySelector('input[name="price"]');
-      noticeTypeNode = noticeBlockNode.querySelector('select[name="type"]');
-      noticeTimeInNode = noticeBlockNode.querySelector('select[name="timein"]');
-      noticeTimeOutNode = noticeBlockNode.querySelector('select[name="timeout"]');
-      noticeRoomsNode = noticeBlockNode.querySelector('select[name="rooms"]');
-      noticeCapacityNode = noticeBlockNode.querySelector('select[name="capacity"]');
-      noticeInputElementsNode = noticeBlockNode.querySelectorAll('input');
-      noticeButtonSubmitNode = noticeBlockNode.querySelector('.ad-form__submit');
-
       noticeTypeNode.addEventListener('change', function () {
         setTypePrice();
       });
