@@ -22,28 +22,21 @@
   var mainPinY;
   var mainPinNode;
 
-  var getCoords = function (elem) {
-    var box = elem.getBoundingClientRect();
-    var indentX = (self.innerWidth - document.body.clientWidth) / 2;
-    var coords = {};
-
-    if (self.innerWidth >= document.body.clientWidth) {
-      coords.left = box.left + pageXOffset - indentX;
-    } else {
-      coords.left = box.left + pageXOffset;
-    }
-
-    coords.top = box.top + pageYOffset;
-    return coords;
-  };
-
   var getMainPinCoords = function () {
     mainPinNode = document.querySelector('.map__pin--main');
-    var MainPinCoords = getCoords(mainPinNode);
-    mainPinX = MainPinCoords.left;
-    mainPinY = MainPinCoords.top;
+    var mainPinLeft = parseInt(mainPinNode.style.left.replace(/[p, x]/, ''), 10);
+    var mainPinRight = parseInt(mainPinNode.style.top.replace(/[p, x]/, ''), 10);
 
-    return Math.ceil(mainPinX + PIN_MAIN_WIDTH / 2) + ', ' + Math.ceil(mainPinY + PIN_MAIN_HEIGHT);
+
+    var coords = {
+      left: mainPinLeft + (PIN_MAIN_WIDTH / 2),
+      top: mainPinRight + PIN_MAIN_HEIGHT
+    };
+
+    mainPinX = coords.left;
+    mainPinY = coords.top;
+
+    return Math.floor(mainPinX) + ', ' + Math.floor(mainPinY);
   };
 
   var setTypePrice = function () {
