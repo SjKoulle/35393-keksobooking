@@ -68,9 +68,9 @@
         };
 
         var mapBorder = {
-          top: MIN_LOCATION_Y - PIN_MAIN_HEIGHT / 2,
+          top: MIN_LOCATION_Y - PIN_MAIN_HEIGHT,
           right: MAX_LOCATION_X - PIN_MAIN_WIDTH,
-          bottom: MAX_LOCATION_Y,
+          bottom: MAX_LOCATION_Y - PIN_MAIN_HEIGHT,
           left: MIN_LOCATION_X
         };
 
