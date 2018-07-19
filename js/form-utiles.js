@@ -21,7 +21,7 @@
   var noticeButtonSubmitNode = noticeBlockNode.querySelector('.ad-form__submit');
   var noticeInputElementsNode = noticeBlockNode.querySelectorAll('input');
   var mainPinNode = document.querySelector('.map__pin--main');
-  var noticeResetButtonNode = noticeBlockNode.querySelectorAll('.ad-form__reset');
+  var noticeResetButtonNode = noticeBlockNode.querySelector('.ad-form__reset');
   var successMessageNode = document.querySelector('.success');
   var mainPinX;
   var mainPinY;
@@ -150,6 +150,13 @@
     });
   };
 
+  var onSuccessLoad = function () {
+    adFormNode.reset();
+    window.formUtiles.resetNoticeAdress();
+    successMessageNode.classList.remove('hidden');
+    document.addEventListener('keydown', closeSuccessMessageOnEsc);
+  };
+
   window.formUtiles = {
     disableNotice: function () {
 
@@ -204,17 +211,12 @@
         validateCapacity();
       });
 
-      // noticeResetButtonNode.addEventListener('click', function () {
-      //   window.formUtiles.resetNoticeAdress();
-      // });
+      noticeResetButtonNode.addEventListener('click', function () {
+        window.formUtiles.resetNoticeAdress();
+      });
 
       adFormNode.addEventListener('submit', function (evt) {
-        window.backend.upload(new FormData(adFormNode), function () {
-          adFormNode.reset();
-          window.formUtiles.resetNoticeAdress();
-          successMessageNode.classList.remove('hidden');
-          document.addEventListener('keydown', closeSuccessMessageOnEsc);
-        }, window.backend.onError);
+        window.backend.upload(new FormData(adFormNode), onSuccessLoad, window.backend.onError);
 
         evt.preventDefault();
       });

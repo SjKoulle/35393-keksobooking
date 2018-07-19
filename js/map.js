@@ -105,17 +105,19 @@
     window.formUtiles.disableNotice();
   };
 
+  var onSuccessPageLoad = function (ads) {
+    window.adsAll = ads;
+    for (var i = 0; i < ads.length; i++) {
+      window.renderPins(ads[i], i);
+    }
+    addEventListenersForPins();
+  };
+
   var activatePage = function () {
     openMap();
     createNodes();
 
-    window.backend.load(function (ads) {
-      window.adsAll = ads;
-      for (var i = 0; i < ads.length; i++) {
-        window.renderPins(ads[i], i);
-      }
-      addEventListenersForPins();
-    }, window.backend.onError);
+    window.backend.load(onSuccessPageLoad, window.backend.onError);
 
     window.formUtiles.enableNotice();
     window.formUtiles.generateNoticeAdress();
