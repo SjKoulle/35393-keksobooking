@@ -24,7 +24,6 @@
   };
 
   var addEventListenersForPins = function () {
-
     pinsNode = mapElementNode.querySelectorAll('.map__pin:not(.map__pin--main)');
 
     for (var i = 0; i < pinsNode.length; i++) {
@@ -109,8 +108,15 @@
   var activatePage = function () {
     openMap();
     createNodes();
-    window.renderPins();
-    addEventListenersForPins();
+
+    window.backend.load(function (ads) {
+      window.adsAll = ads;
+      for (var i = 0; i < ads.length; i++) {
+        window.renderPins(ads[i], i);
+      }
+      addEventListenersForPins();
+    }, window.backend.onError);
+
     window.formUtiles.enableNotice();
     window.formUtiles.generateNoticeAdress();
     window.formUtiles.addEventListenersForForm();
