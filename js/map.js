@@ -24,7 +24,6 @@
   };
 
   var addEventListenersForPins = function () {
-
     pinsNode = mapElementNode.querySelectorAll('.map__pin:not(.map__pin--main)');
 
     for (var i = 0; i < pinsNode.length; i++) {
@@ -106,11 +105,20 @@
     window.formUtiles.disableNotice();
   };
 
+  var onSuccessPageLoad = function (ads) {
+    window.adsAll = ads;
+    for (var i = 0; i < ads.length; i++) {
+      window.renderPins(ads[i], i);
+    }
+    addEventListenersForPins();
+  };
+
   var activatePage = function () {
     openMap();
     createNodes();
-    window.renderPins();
-    addEventListenersForPins();
+
+    window.backend.load(onSuccessPageLoad, window.backend.onError);
+
     window.formUtiles.enableNotice();
     window.formUtiles.generateNoticeAdress();
     window.formUtiles.addEventListenersForForm();

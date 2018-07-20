@@ -4,6 +4,8 @@
 
   var PIN_MAIN_WIDTH = 65;
   var PIN_MAIN_HEIGHT = 87;
+  var PIN_MAIN_INITIAL_X = 570;
+  var PIN_MAIN_INITIAL_Y = 375;
 
   var noticeBlockNode = document.querySelector('.notice');
   var noticePriceNode = noticeBlockNode.querySelector('input[name="price"]');
@@ -18,15 +20,15 @@
   var adFormAdressNode = document.querySelector('input[name="address"]');
   var noticeButtonSubmitNode = noticeBlockNode.querySelector('.ad-form__submit');
   var noticeInputElementsNode = noticeBlockNode.querySelectorAll('input');
+  var mainPinNode = document.querySelector('.map__pin--main');
+  var noticeResetButtonNode = noticeBlockNode.querySelector('.ad-form__reset');
+  var successMessageNode = document.querySelector('.success');
   var mainPinX;
   var mainPinY;
-  var mainPinNode;
 
   var getMainPinCoords = function () {
-    mainPinNode = document.querySelector('.map__pin--main');
     var mainPinLeft = parseInt(mainPinNode.style.left.replace(/[p, x]/, ''), 10);
     var mainPinRight = parseInt(mainPinNode.style.top.replace(/[p, x]/, ''), 10);
-
 
     var coords = {
       left: mainPinLeft + (PIN_MAIN_WIDTH / 2),
@@ -141,9 +143,22 @@
     }
   };
 
+  var closeSuccessMessageOnEsc = function (evt) {
+    window.utiles.performActionIfEscEvent(evt, function () {
+      successMessageNode.classList.add('hidden');
+      document.removeEventListener('keydown', closeSuccessMessageOnEsc);
+    });
+  };
+
+  var onSuccessLoad = function () {
+    adFormNode.reset();
+    window.formUtiles.resetNoticeAdress();
+    successMessageNode.classList.remove('hidden');
+    document.addEventListener('keydown', closeSuccessMessageOnEsc);
+  };
+
   window.formUtiles = {
     disableNotice: function () {
-
 
       adFormHeaderNode.disabled = true;
 
@@ -168,6 +183,12 @@
       adFormAdressNode.readOnly = true;
     },
 
+    resetNoticeAdress: function () {
+      mainPinNode.style.left = PIN_MAIN_INITIAL_X + 'px';
+      mainPinNode.style.top = PIN_MAIN_INITIAL_Y + 'px';
+      window.formUtiles.generateNoticeAdress();
+    },
+
     addEventListenersForForm: function () {
       noticeTypeNode.addEventListener('change', function () {
         setTypePrice();
@@ -188,6 +209,16 @@
       noticeButtonSubmitNode.addEventListener('click', function () {
         validateAdForm();
         validateCapacity();
+      });
+
+      noticeResetButtonNode.addEventListener('click', function () {
+        window.formUtiles.resetNoticeAdress();
+      });
+
+      adFormNode.addEventListener('submit', function (evt) {
+        window.backend.upload(new FormData(adFormNode), onSuccessLoad, window.backend.onError);
+
+        evt.preventDefault();
       });
     }
   };
