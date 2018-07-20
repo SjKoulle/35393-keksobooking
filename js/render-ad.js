@@ -1,9 +1,9 @@
 'use strict';
 
 (function () {
-  var mapAdTemplateNode;
-  var mapAdTemplatePopupNode;
-  var mapElementNode;
+  var mapAdTemplateNode = document.querySelector('template');
+  var mapAdTemplatePopupNode = mapAdTemplateNode.content.querySelector('.map__card');
+  var mapElementNode = document.querySelector('.map__pins');
   var adElement;
   var popupFeature;
   var popupPhotos;
@@ -80,9 +80,6 @@
   };
 
   window.renderAd = function (ad) {
-    mapElementNode = document.querySelector('.map__pins');
-    mapAdTemplateNode = document.querySelector('template');
-    mapAdTemplatePopupNode = mapAdTemplateNode.content.querySelector('.map__card');
     adElement = mapAdTemplatePopupNode.cloneNode(true);
 
     adElement.querySelector('.popup__avatar').src = ad.author.avatar;
