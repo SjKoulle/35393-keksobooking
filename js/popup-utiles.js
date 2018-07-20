@@ -10,6 +10,11 @@
       window.renderAd(window.adsAll[targetId]);
     },
 
+    openAfterFilterPopup: function (evt) {
+      var targetId = evt.target.getAttribute('data-id');
+      window.renderAd(window.filteredPins[targetId]);
+    },
+
     closePopup: function (elem) {
       elem.addEventListener('click', function () {
         mapElementNode.removeChild(elem);
