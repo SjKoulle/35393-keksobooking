@@ -212,7 +212,7 @@
       });
 
       noticeResetButtonNode.addEventListener('click', function () {
-        window.formUtiles.resetNoticeAdress();
+        setTimeout(window.formUtiles.resetNoticeAdress, 1);
       });
 
       adFormNode.addEventListener('submit', function (evt) {

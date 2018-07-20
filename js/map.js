@@ -24,8 +24,11 @@
   var mapFilterGuestsNode = mapFiltersNode.querySelector('select[name="housing-guests"]');
   var mapFilterFeaturesNode = mapFiltersNode.querySelector('.map__features');
   var filterSet = {};
-  window.filteredPins = [];
-  window.adsAll = [];
+
+  window.map = {
+    ads: [],
+    filteredPins: []
+  };
 
   var generateFilter = function () {
     for (var i = 0; i < mapFilterElementsNode.length; i++) {
