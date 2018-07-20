@@ -13,7 +13,7 @@
   var PRICE_HIGH = 50000;
 
   var mapNode;
-  var mainPinNode;
+  var mainPinNode = document.querySelector('.map__pin--main');
   var pinsNode;
   var mapElementNode = document.querySelector('.map__pins');
   var mapFiltersNode = document.querySelector('.map__filters');
@@ -26,7 +26,7 @@
   var filterSet = {};
 
   window.map = {
-    ads: [],
+    adsAll: [],
     filteredPins: []
   };
 
@@ -129,14 +129,14 @@
   };
 
   var getFilteredPins = function () {
-    window.filteredPins = window.adsAll.filter(filterType).filter(filterPrice).filter(filterRooms).filter(filterGuests).filter(filterFeatures);
-    return window.filteredPins;
+    window.map.filteredPins = window.map.adsAll.filter(filterType).filter(filterPrice).filter(filterRooms).filter(filterGuests).filter(filterFeatures);
+    return window.map.filteredPins;
   };
 
   var renderFilteredPins = function () {
-    var length = Math.min(window.filteredPins.length, PIN_QUANTITY);
+    var length = Math.min(window.map.filteredPins.length, PIN_QUANTITY);
     for (var i = 0; i < length; i++) {
-      window.renderPins(window.filteredPins[i], i);
+      window.renderPins(window.map.filteredPins[i], i);
     }
   };
 
@@ -172,8 +172,6 @@
   };
 
   var addEventListenersForMainPin = function () {
-    mainPinNode = document.querySelector('.map__pin--main');
-
     mainPinNode.addEventListener('mousedown', function (evt) {
       evt.preventDefault();
 
@@ -218,10 +216,7 @@
         window.formUtiles.generateNoticeAdress();
       };
 
-      var onMouseUp = function (upEvt) {
-        upEvt.preventDefault();
-        activatePage();
-
+      var onMouseUp = function () {
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
       };
@@ -229,6 +224,16 @@
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
     });
+  };
+
+  var onMouseClick = function (evt) {
+    evt.preventDefault();
+    activatePage();
+    mainPinNode.removeEventListener('click', onMouseClick);
+  };
+
+  var addFirstEventListener = function () {
+    mainPinNode.addEventListener('click', onMouseClick);
 
     mainPinNode.addEventListener('keydown', function (evt) {
       window.utiles.performActionIfEnterEvent(evt, activatePage);
@@ -240,7 +245,7 @@
   };
 
   var onSuccessPageLoad = function (ads) {
-    window.adsAll = ads;
+    window.map.adsAll = ads;
     for (var i = 0; i < PIN_QUANTITY; i++) {
       window.renderPins(ads[i], i);
     }
@@ -259,6 +264,7 @@
   var init = function () {
     deactivatePage();
     addEventListenersForMainPin();
+    addFirstEventListener();
   };
 
   init();

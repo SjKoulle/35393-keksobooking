@@ -7,12 +7,12 @@
   window.popupUtiles = {
     openPopup: function (evt) {
       var targetId = evt.target.getAttribute('data-id');
-      window.renderAd(window.adsAll[targetId]);
+      window.renderAd(window.map.adsAll[targetId]);
     },
 
     openAfterFilterPopup: function (evt) {
       var targetId = evt.target.getAttribute('data-id');
-      window.renderAd(window.filteredPins[targetId]);
+      window.renderAd(window.map.filteredPins[targetId]);
     },
 
     closePopup: function (elem) {
